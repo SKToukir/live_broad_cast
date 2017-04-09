@@ -2,6 +2,9 @@ apply plugin: 'com.android.application'
 
 repositories {
     jcenter()
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 android {
@@ -9,7 +12,7 @@ android {
     buildToolsVersion "25.0.2"
 
     defaultConfig {
-        applicationId "io.agora.openlive"
+        applicationId "com.vumobile.celeb"
         minSdkVersion 16 // JELLY_BEAN
         targetSdkVersion 25
         versionCode 8
@@ -44,10 +47,8 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':libvideoprp')
-
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:support-v4:25.1.0'
     compile 'com.android.support:design:25.1.0'
@@ -57,6 +58,7 @@ dependencies {
         // workaround issue #73
         exclude group: 'com.google.android', module: 'android'
     }
-
     androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.6.3'
+    compile files('libs/agora-rtc-sdk.jar')
+    compile 'com.facebook.android:facebook-android-sdk:4.0.0'
 }

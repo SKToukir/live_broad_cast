@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="io.agora.openlive">
+    package="com.vumobile.celeb">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -17,23 +17,30 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.MainActivity"
+            android:name="com.vumobile.ParentActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".ui.LiveRoomActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/FullscreenTheme" />
+            android:theme="@style/FullscreenTheme"
+            android:windowSoftInputMode="adjustNothing"/>
         <activity
             android:name=".ui.SettingsActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/label_settings" />
+            android:label="@string/label_settings"
+            android:screenOrientation="portrait" />
+        <activity android:name=".HomeActivity" />
+        <activity android:name=".LogInActivity" />
+        <activity
+            android:name=".ui.MainActivityLive"
+            android:label="@string/title_activity_parent"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
-

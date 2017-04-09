@@ -1,56 +1,56 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             tools:context=".ui.LiveRoomActivity"
-             android:keepScreenOn="true">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:keepScreenOn="true"
+    tools:context=".ui.LiveRoomActivity">
 
-    <io.agora.openlive.ui.GridVideoViewContainer
+    <com.vumobile.celeb.ui.GridVideoViewContainer
         android:id="@+id/grid_video_view_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <ViewStub
         android:id="@id/small_video_view_dock"
-        android:inflatedId="@id/small_video_view_dock"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="60dp"
+        android:inflatedId="@id/small_video_view_dock"
         android:layout="@layout/small_video_view_dock" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <io.agora.ui.AGLinearLayout
+        <com.vumobile.ui.AGLinearLayout
             android:id="@+id/top_area"
             android:layout_width="wrap_content"
             android:layout_height="54dp"
-            android:gravity="center_vertical"
-            android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_bg"
                 android:layout_marginLeft="6dp"
                 android:layout_marginStart="6dp"
+                android:background="@drawable/rounded_bg"
+                android:orientation="vertical"
                 android:paddingLeft="12dp"
-                android:paddingStart="12dp"
                 android:paddingRight="12dp"
+                android:paddingStart="12dp"
                 app:paddingEnd="12dp">
 
                 <TextView
                     android:id="@+id/room_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@android:color/white"
+                    android:textSize="12sp" />
             </LinearLayout>
 
             <View
@@ -61,39 +61,42 @@
             <ImageView
                 android:layout_width="54dp"
                 android:layout_height="match_parent"
+                android:onClick="onClickClose"
                 android:scaleType="center"
-                android:src="@drawable/btn_close"
-                android:onClick="onClickClose" />
+                android:src="@drawable/btn_close" />
 
-        </io.agora.ui.AGLinearLayout>
+        </com.vumobile.ui.AGLinearLayout>
 
         <LinearLayout
             android:id="@+id/bottom_container"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/top_area"
+            android:layout_margin="5dp"
+            android:gravity="center"
+            android:orientation="vertical">
 
-            <io.agora.ui.AGLinearLayout
+
+            <com.vumobile.ui.AGLinearLayout
                 android:id="@+id/bottom_action_container"
                 android:layout_width="wrap_content"
-                android:layout_height="54dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <ImageView
                     android:layout_width="54dp"
                     android:layout_height="match_parent"
+                    android:onClick="onShowHideClicked"
                     android:scaleType="center"
-                    android:src="@drawable/btn_hide"
-                    android:onClick="onShowHideClicked" />
+                    android:src="@drawable/btn_hide" />
 
                 <ImageView
                     android:id="@+id/btn_1"
                     android:layout_width="54dp"
                     android:layout_height="match_parent"
+                    android:layout_marginTop="5dp"
                     android:scaleType="center"
                     android:src="@drawable/btn_request_broadcast" />
 
@@ -101,6 +104,7 @@
                     android:id="@+id/btn_2"
                     android:layout_width="54dp"
                     android:layout_height="match_parent"
+                    android:layout_marginTop="5dp"
                     android:scaleType="center"
                     android:src="@drawable/btn_switch_camera" />
 
@@ -108,12 +112,86 @@
                     android:id="@+id/btn_3"
                     android:layout_width="54dp"
                     android:layout_height="match_parent"
+                    android:layout_marginTop="5dp"
                     android:scaleType="center"
                     android:src="@drawable/btn_mute" />
-            </io.agora.ui.AGLinearLayout>
+            </com.vumobile.ui.AGLinearLayout>
 
         </LinearLayout>
 
     </RelativeLayout>
 
+    <!--Comment layout section start-->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+            <!--comment list layout-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="4">
+
+                <!--comment list-->
+                <ListView
+                    android:id="@+id/listComment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"></ListView>
+
+            </LinearLayout>
+
+            <!--write comment and send layout-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight=".5">
+
+                    <EditText
+                        android:imeOptions="actionDone"
+                        android:singleLine="true"
+                        android:id="@+id/etComment"
+                        android:layout_width="310dp"
+                        android:layout_height="wrap_content"
+                        android:hint="Comment"
+                        android:textColor="#fff"
+                        android:textColorHint="#fff" />
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_weight="2.5">
+
+                    <Button
+                        android:id="@+id/btnSendComment"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_centerHorizontal="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/ic_send" />
+
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+        <!--Comment layout section end-->
+    </RelativeLayout>
 </FrameLayout>
