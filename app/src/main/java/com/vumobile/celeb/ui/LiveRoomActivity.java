@@ -23,6 +23,17 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vumobile.celeb.Adapters.CommentListAdapter;
 import com.vumobile.celeb.R;
 import com.vumobile.celeb.Utils.CommentClass;
@@ -39,7 +50,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import io.agora.rtc.Constants;
 import io.agora.rtc.RtcEngine;
@@ -49,6 +62,8 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
     InputMethodManager imm;
 
+    String temp_key,chat_user_name;
+    String roomName;
     private static String video_id;
 
     private final static Logger log = LoggerFactory.getLogger(LiveRoomActivity.class);
@@ -67,6 +82,8 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
     CommentListAdapter adapter;
 
+    private DatabaseReference root = FirebaseDatabase.getInstance().getReference().getRoot();
+
     private final HashMap<Integer, SurfaceView> mUidsList = new HashMap<>(); // uid = 0 || uid == EngineConfig.mUid
 
     @Override
@@ -76,9 +93,12 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
         initUI();
 
+
         // initialize comment list adapter
         adapter = new CommentListAdapter(this, R.layout.custom_comment_list, commentClassList);
         listOfComment.setAdapter(adapter);
+
+
     }
 
     private void initUI() {
@@ -123,7 +143,9 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
             throw new RuntimeException("Should not reach here");
         }
 
-        String roomName = i.getStringExtra(ConstantApp.ACTION_KEY_ROOM_NAME);
+        roomName = i.getStringExtra(ConstantApp.ACTION_KEY_ROOM_NAME);
+
+
 
         doConfigEngine(cRole);
 
@@ -159,14 +181,26 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
             mGridVideoViewContainer.initViewContainer(getApplicationContext(), 0, mUidsList); // first is now full view
             worker().preview(true, surfaceV, 0);
             broadcasterUI(button1, button2, button3);
+            //here videoid is the room name created on firebase database
             video_id = String.valueOf(Methods.getSerialnumber(8));
             Log.d("whomi","broadcaster");
+
+            // first staep to create room on firebase for comment
+            createRoomOnFirebase(video_id);
+
             // save celebrity name and video id to server
             saveLiveData(video_id,roomName);
 
         } else {
             audienceUI(button1, button2, button3);
             Log.d("whomi","audience");
+
+            // get room id from database
+            getRoomIdFromServer(roomName);
+            getAllComment("66400166");
+
+            // here we get fan name
+            chat_user_name = "Audience";
         }
 
         worker().joinChannel(roomName, config().mUid);
@@ -175,12 +209,36 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
         textRoomName.setText(roomName);
     }
 
+    private void getRoomIdFromServer(String roomName) {
+        // get room id wehere celeb_name = roomName
+    }
+
+    private void createRoomOnFirebase(String video_id) {
+
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put(video_id,"");
+        root.updateChildren(map);
+
+    }
 
     private void saveLiveData(String vid, String celeb_name) {
 
-        Log.d("alll",vid+" "+celeb_name);
+        String url = "http://vumobile.biz/Toukir/celeb_comment/saveroomname.php?vid="+vid+"&celeb_name="+celeb_name;
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        StringRequest getRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse (String response) {
+                Log.v("TAGG", "GET response: " + response);
+                getAllComment();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse (VolleyError error) {
+                Log.v("TAGG", "Volley GET error: " + error);
+            }
+        });
 
-        
+        requestQueue.add(getRequest);
 
     }
 
@@ -566,14 +624,18 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
     private void postComment(String comment) {
 
-        CommentClass commentClass = new CommentClass();
-        commentClass.setUserName("User Name");
-        commentClass.setuComment(comment);
-        commentClass.setTime(getTime());
+        Map<String,Object> map = new HashMap<String, Object>();
+        temp_key = root.push().getKey();
+        root.updateChildren(map);
 
-        commentClassList.add(commentClass);
-        adapter.notifyDataSetChanged();
-        listOfComment.setSelection(adapter.getCount()-1);
+        DatabaseReference message_root = root.child(temp_key);
+        Map<String,Object> map2 = new HashMap<>();
+        map2.put("name",chat_user_name);
+        map2.put("msg",comment);
+
+        message_root.updateChildren(map2);
+
+        listOfComment.setSelection(adapter.getCount() - 1);
 
     }
 
@@ -583,4 +645,94 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
         return date;
     }
+
+    // this method will b removed..this method is used for only celebrity
+    public void getAllComment(){
+         root = FirebaseDatabase.getInstance().getReference().child(video_id);
+
+        root.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                append_chat_conversation(dataSnapshot);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                append_chat_conversation(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    // this method will b removed..this method is used for only audience
+    public void getAllComment(String test){
+        root = FirebaseDatabase.getInstance().getReference().child(test);
+
+        root.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                append_chat_conversation(dataSnapshot);
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                append_chat_conversation(dataSnapshot);
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private String chat_msg;
+    private void append_chat_conversation(DataSnapshot dataSnapshot) {
+
+        Iterator i = dataSnapshot.getChildren().iterator();
+
+        while (i.hasNext()){
+            chat_msg = (String) ((DataSnapshot)i.next()).getValue();
+            chat_user_name = (String) ((DataSnapshot)i.next()).getValue();
+
+           CommentClass commentClass = new CommentClass();
+            commentClass.setUserName(chat_user_name);
+            commentClass.setuComment(chat_msg);
+
+            commentClassList.add(commentClass);
+        }
+        listOfComment.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+
+
+    }
+
 }
