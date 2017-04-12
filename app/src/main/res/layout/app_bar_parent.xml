@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.vumobile.ParentActivity">
+    tools:context="com.vumobile.ParentActivity" android:background="@drawable/back">
 
 
     <include
@@ -28,7 +28,8 @@
 
     <!--</android.support.design.widget.AppBarLayout>-->
 
-    <include layout="@layout/content_parent" />
+    <include
+    layout="@layout/content_parent" />
 
     <!--<android.support.design.widget.FloatingActionButton-->
         <!--android:id="@+id/fab"-->

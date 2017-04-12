@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:background="#00ffffff"
+    android:layout_marginBottom="3dp"
+    >
+
+    <LinearLayout
+        android:layout_marginTop="3dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp"
+        android:background="#91d6caca"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_gravity="center"
+        android:layout_weight=".7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.vumobile.celeb.Utils.RoundedImageView
+            android:foreground="@drawable/circular_image"
+            android:id="@+id/imgCeleb"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_man"
+            android:layout_width="80dp"
+            android:layout_height="80dp" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_weight=".3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:textStyle="normal"
+                android:textSize="22dp"
+                android:id="@+id/txtCelebName"
+                android:layout_centerVertical="true"
+                android:textColor="#fff"
+                android:text="Shahrukh Khan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_below="@+id/txtCelebName"
+                android:layout_centerVertical="true"
+                android:text="offline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+            <ImageView
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/txtCelebName"
+                android:src="@drawable/like"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    </LinearLayout>
+</LinearLayout>

@@ -27,6 +27,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.firebase.database.ChildEventListener;
@@ -41,7 +42,11 @@ import com.vumobile.celeb.Utils.Methods;
 import com.vumobile.celeb.model.AGEventHandler;
 import com.vumobile.celeb.model.ConstantApp;
 import com.vumobile.celeb.model.VideoStatusData;
+import com.vumobile.fan.login.Session;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +67,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
     InputMethodManager imm;
 
-    String temp_key,chat_user_name;
+    String temp_key,chat_user_name,user_name,id,op;
     String roomName;
     private static String video_id;
 
@@ -93,7 +98,6 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
         initUI();
 
-
         // initialize comment list adapter
         adapter = new CommentListAdapter(this, R.layout.custom_comment_list, commentClassList);
         listOfComment.setAdapter(adapter);
@@ -104,7 +108,6 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
     private void initUI() {
 
         listOfComment = (ListView) findViewById(R.id.listComment);
-
         etComment = (EditText) findViewById(R.id.etComment);
         // used this method for showing edittext view when keyboard shows
         imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -144,6 +147,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
         }
 
         roomName = i.getStringExtra(ConstantApp.ACTION_KEY_ROOM_NAME);
+        user_name = Session.retreiveName(LiveRoomActivity.this,Session.USER_NAME);
 
 
 
@@ -183,7 +187,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
             broadcasterUI(button1, button2, button3);
             //here videoid is the room name created on firebase database
             video_id = String.valueOf(Methods.getSerialnumber(8));
-            Log.d("whomi","broadcaster");
+            Log.d("whoi","broadcaster");
 
             // first staep to create room on firebase for comment
             createRoomOnFirebase(video_id);
@@ -192,25 +196,17 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
             saveLiveData(video_id,roomName);
 
         } else {
+            getVid(roomName);
             audienceUI(button1, button2, button3);
-            Log.d("whomi","audience");
+            Log.d("whoi","Audience");
 
-            // get room id from database
-            getRoomIdFromServer(roomName);
-            getAllComment("66400166");
-
-            // here we get fan name
-            chat_user_name = "Audience";
+           // roomName = "Audience";
         }
 
         worker().joinChannel(roomName, config().mUid);
 
         TextView textRoomName = (TextView) findViewById(R.id.room_name);
         textRoomName.setText(roomName);
-    }
-
-    private void getRoomIdFromServer(String roomName) {
-        // get room id wehere celeb_name = roomName
     }
 
     private void createRoomOnFirebase(String video_id) {
@@ -630,14 +626,15 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
         DatabaseReference message_root = root.child(temp_key);
         Map<String,Object> map2 = new HashMap<>();
-        map2.put("name",chat_user_name);
+        map2.put("name",user_name);
         map2.put("msg",comment);
 
         message_root.updateChildren(map2);
 
-        listOfComment.setSelection(adapter.getCount() - 1);
+//        listOfComment.setSelection(adapter.getCount() - 1);
 
     }
+
 
     public String getTime(){
         DateFormat df = new SimpleDateFormat("d MMM yyyy, HH:mm");
@@ -648,7 +645,7 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
 
     // this method will b removed..this method is used for only celebrity
     public void getAllComment(){
-         root = FirebaseDatabase.getInstance().getReference().child(video_id);
+        root = FirebaseDatabase.getInstance().getReference().child(video_id);
 
         root.addChildEventListener(new ChildEventListener() {
             @Override
@@ -723,9 +720,10 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
             chat_msg = (String) ((DataSnapshot)i.next()).getValue();
             chat_user_name = (String) ((DataSnapshot)i.next()).getValue();
 
-           CommentClass commentClass = new CommentClass();
+            CommentClass commentClass = new CommentClass();
             commentClass.setUserName(chat_user_name);
             commentClass.setuComment(chat_msg);
+            //commentClass.setTime(getTime());
 
             commentClassList.add(commentClass);
         }
@@ -733,6 +731,39 @@ public class LiveRoomActivity extends BaseActivity implements AGEventHandler, Vi
         adapter.notifyDataSetChanged();
 
 
+    }
+
+    public void getVid(String name){
+        String url = "http://vumobile.biz/Toukir/celeb_comment/getVid.php?room_name="+name;
+        RequestQueue queue = Volley.newRequestQueue(LiveRoomActivity.this);
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest(Request.Method.POST,url,null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        Log.d("log",response.toString());
+
+                        try {
+                            JSONArray array = response.getJSONArray("server_response");
+                            JSONObject object = array.getJSONObject(0);
+                            id = object.getString("vid");
+                            Log.d("logs",id+" "+op);
+                            op = id;
+                            getAllComment(id);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+        queue.add(jsObjRequest);
     }
 
 }
